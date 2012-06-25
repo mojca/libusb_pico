@@ -750,6 +750,20 @@ struct usbi_os_backend {
 	int (*clear_halt)(struct libusb_device_handle *handle,
 		unsigned char endpoint);
 
+  /* call reset on an endpoint.
+	 *
+	 * It's OK for this function to block.
+	 *
+	 * Return:
+	 * - 0 on success
+	 * - LIBUSB_ERROR_NOT_FOUND if the endpoint does not exist
+	 * - LIBUSB_ERROR_NO_DEVICE if the device has been disconnected since it
+	 *   was opened
+	 * - another LIBUSB_ERROR code on other failure
+	 */
+	int (*reset_endpoint)(struct libusb_device_handle *handle,
+		unsigned char endpoint);
+
 	/* Perform a USB port reset to reinitialize a device.
 	 *
 	 * If possible, the handle should still be usable after the reset

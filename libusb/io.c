@@ -2018,6 +2018,7 @@ int API_EXPORTED libusb_handle_events_timeout_completed(libusb_context *ctx,
 
 retry:
 	if (libusb_try_lock_events(ctx) == 0) {
+		r = 0;
 		if (completed == NULL || !*completed) {
 			/* we obtained the event lock: do our own event handling */
 			usbi_dbg("doing our own event handling");
@@ -2031,21 +2032,37 @@ retry:
 	 * notify event completion. */
 	libusb_lock_event_waiters(ctx);
 
-	if (completed && *completed)
-		goto already_done;
+//<<<<<<< HEAD
+//	if (completed && *completed)
+//		goto already_done;
+//
+//	if (!libusb_event_handler_active(ctx)) {
+//		/* we hit a race: whoever was event handling earlier finished in the
+//		 * time it took us to reach this point. try the cycle again. */
+//		libusb_unlock_event_waiters(ctx);
+//		usbi_dbg("event handler was active but went away, retrying");
+//		goto retry;
+//	}
+//
+//	usbi_dbg("another thread is doing event handling");
+//	r = libusb_wait_for_event(ctx, &poll_timeout);
+//
+//already_done:
+//=======
+	if (completed == NULL || !*completed) {
+		if (!libusb_event_handler_active(ctx)) {
+			/* we hit a race: whoever was event handling earlier finished in the
+			 * time it took us to reach this point. try the cycle again. */
+			libusb_unlock_event_waiters(ctx);
+			usbi_dbg("event handler was active but went away, retrying");
+			goto retry;
+		}
 
-	if (!libusb_event_handler_active(ctx)) {
-		/* we hit a race: whoever was event handling earlier finished in the
-		 * time it took us to reach this point. try the cycle again. */
-		libusb_unlock_event_waiters(ctx);
-		usbi_dbg("event handler was active but went away, retrying");
-		goto retry;
+		usbi_dbg("another thread is doing event handling, wait for notification");
+		r = libusb_wait_for_event(ctx, &poll_timeout);
 	}
 
-	usbi_dbg("another thread is doing event handling");
-	r = libusb_wait_for_event(ctx, &poll_timeout);
-
-already_done:
+//>>>>>>>
 	libusb_unlock_event_waiters(ctx);
 
 	if (r < 0)
@@ -2055,6 +2072,17 @@ already_done:
 	else
 		return 0;
 }
+
+
+int API_EXPORTED libusb_handle_events_check(libusb_context *ctx,
+	int *completed)
+{
+	struct timeval tv;
+	tv.tv_sec = 60;
+	tv.tv_usec = 0;
+	return libusb_handle_events_timeout_completed(ctx, &tv, completed);
+}
+
 
 /** \ingroup poll
  * Handle any pending events

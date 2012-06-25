@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = dist-bzip2 no-dist-gzip
 ACLOCAL_AMFLAGS = -I m4
-DISTCLEANFILES = libusb-1.0.pc
+DISTCLEANFILES = libusb_pico-1.0.pc
 MAINTAINERCLEANFILES = ChangeLog
 EXTRA_DIST = TODO PORTING msvc
 SUBDIRS = libusb doc
@@ -10,7 +10,7 @@ SUBDIRS += examples
 endif
 
 pkgconfigdir=$(libdir)/pkgconfig
-pkgconfig_DATA=libusb-1.0.pc
+pkgconfig_DATA=libusb_pico-1.0.pc
 
 .PHONY: ChangeLog dist-up
 ChangeLog:

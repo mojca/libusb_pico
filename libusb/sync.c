@@ -215,6 +215,81 @@ static int do_sync_bulk_transfer(struct libusb_device_handle *dev_handle,
 	return r;
 }
 
+
+static int do_sync_bulk_transfer_create(struct libusb_transfer ** transfer_out)
+{
+	*transfer_out = libusb_alloc_transfer(0);
+}
+
+static int do_sync_bulk_transfer_release(struct libusb_transfer * transfer_in)
+{
+	struct libusb_transfer *transfer = transfer_in;
+	libusb_free_transfer(transfer);
+}
+
+static int do_sync_bulk_transfer_alt(struct libusb_device_handle *dev_handle,
+	unsigned char endpoint, unsigned char *buffer, int length,
+	int *transferred, unsigned int timeout, unsigned char type,
+	struct libusb_transfer * transfer_in)
+{
+	struct libusb_transfer *transfer = transfer_in;
+	int completed = 0;
+	int r;
+
+	if (!transfer)
+		return LIBUSB_ERROR_NO_MEM;
+
+	libusb_fill_bulk_transfer(transfer, dev_handle, endpoint, buffer, length,
+		bulk_transfer_cb, &completed, timeout);
+	transfer->type = type;
+
+	r = libusb_submit_transfer(transfer);
+	if (r < 0) {
+		libusb_free_transfer(transfer);
+		return r;
+	}
+
+	while (!completed) {
+		r = libusb_handle_events_check(HANDLE_CTX(dev_handle), &completed);
+		if (r < 0) {
+			if (r == LIBUSB_ERROR_INTERRUPTED)
+				continue;
+			libusb_cancel_transfer(transfer);
+			while (!completed)
+				if (libusb_handle_events_check(HANDLE_CTX(dev_handle), &completed) < 0)
+					break;
+			libusb_free_transfer(transfer);
+			return r;
+		}
+	}
+
+	*transferred = transfer->actual_length;
+	switch (transfer->status) {
+	case LIBUSB_TRANSFER_COMPLETED:
+		r = 0;
+		break;
+	case LIBUSB_TRANSFER_TIMED_OUT:
+		r = LIBUSB_ERROR_TIMEOUT;
+		break;
+	case LIBUSB_TRANSFER_STALL:
+		r = LIBUSB_ERROR_PIPE;
+		break;
+	case LIBUSB_TRANSFER_OVERFLOW:
+		r = LIBUSB_ERROR_OVERFLOW;
+		break;
+	case LIBUSB_TRANSFER_NO_DEVICE:
+		r = LIBUSB_ERROR_NO_DEVICE;
+		break;
+	default:
+		usbi_warn(HANDLE_CTX(dev_handle),
+			"unrecognised status code %d", transfer->status);
+		r = LIBUSB_ERROR_OTHER;
+	}
+
+	return r;
+}
+
+
 /** \ingroup syncio
  * Perform a USB bulk transfer. The direction of the transfer is inferred from
  * the direction bits of the endpoint address.
@@ -262,6 +337,25 @@ int API_EXPORTED libusb_bulk_transfer(struct libusb_device_handle *dev_handle,
 	return do_sync_bulk_transfer(dev_handle, endpoint, data, length,
 		transferred, timeout, LIBUSB_TRANSFER_TYPE_BULK);
 }
+
+API_EXPORTED int libusb_bulk_transfer_alt(struct libusb_device_handle *dev_handle,
+	unsigned char endpoint, unsigned char *data, int length, int *transferred,
+	unsigned int timeout, struct libusb_transfer *transfer)
+{
+	return do_sync_bulk_transfer_alt(dev_handle, endpoint, data, length,
+		transferred, timeout, LIBUSB_TRANSFER_TYPE_BULK, transfer);
+}
+
+API_EXPORTED int libusb_bulk_transfer_create(struct libusb_transfer **transfer)
+{
+	return do_sync_bulk_transfer_create(transfer);
+}
+
+API_EXPORTED int libusb_bulk_transfer_release(struct libusb_transfer *transfer)
+{
+	return do_sync_bulk_transfer_release(transfer);
+}
+
 
 /** \ingroup syncio
  * Perform a USB interrupt transfer. The direction of the transfer is inferred

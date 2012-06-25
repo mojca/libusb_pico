@@ -15,7 +15,7 @@ LU_DEFINE_VERSION_ATOM([LIBUSB_MINOR])
 LU_DEFINE_VERSION_ATOM([LIBUSB_MICRO])
 LU_DEFINE_VERSION_RC_ATOM([LIBUSB_RC])
 
-AC_INIT([libusb], LIBUSB_MAJOR[.]LIBUSB_MINOR[.]LIBUSB_MICRO[]LIBUSB_RC, [libusb-devel@lists.sourceforge.net], [libusb], [http://www.libusb.org/])
+AC_INIT([libusb_pico], LIBUSB_MAJOR[.]LIBUSB_MINOR[.]LIBUSB_MICRO[]LIBUSB_RC, [libusb-devel@lists.sourceforge.net], [libusb], [http://www.libusb.org/])
 
 # Library versioning
 # These numbers should be tweaked on every release. Read carefully:
@@ -163,6 +163,7 @@ AC_ARG_ENABLE([log], [AS_HELP_STRING([--disable-log], [disable all logging])],
 	[log_enabled='yes'])
 if test "x$log_enabled" != "xno"; then
 	AC_DEFINE([ENABLE_LOGGING], 1, [Message logging])
+	AC_SUBST([CFLAGS],["-g3 -O0"])
 fi
 
 AC_ARG_ENABLE([debug-log], [AS_HELP_STRING([--enable-debug-log],
@@ -171,6 +172,7 @@ AC_ARG_ENABLE([debug-log], [AS_HELP_STRING([--enable-debug-log],
 	[debug_log_enabled='no'])
 if test "x$debug_log_enabled" != "xno"; then
 	AC_DEFINE([ENABLE_DEBUG_LOGGING], 1, [Debug message logging])
+	AC_SUBST([CFLAGS],["-g3 -O0"])
 fi
 
 # Examples build
@@ -213,10 +215,11 @@ AC_SUBST(VISIBILITY_CFLAGS)
 AC_SUBST(AM_CFLAGS)
 AC_SUBST(LTLDFLAGS)
 
-AC_CONFIG_FILES([libusb-1.0.pc])
+AC_CONFIG_FILES([libusb_pico-1.0.pc])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libusb/Makefile])
 AC_CONFIG_FILES([examples/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
 AC_CONFIG_FILES([doc/doxygen.cfg])
+
 AC_OUTPUT

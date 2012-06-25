@@ -1001,6 +1001,8 @@ int LIBUSB_CALL libusb_set_interface_alt_setting(libusb_device_handle *dev,
 	int interface_number, int alternate_setting);
 int LIBUSB_CALL libusb_clear_halt(libusb_device_handle *dev,
 	unsigned char endpoint);
+int LIBUSB_CALL libusb_reset_endpoint(libusb_device_handle *dev,
+	unsigned char endpoint);
 int LIBUSB_CALL libusb_reset_device(libusb_device_handle *dev);
 
 int LIBUSB_CALL libusb_kernel_driver_active(libusb_device_handle *dev,
@@ -1320,6 +1322,15 @@ int LIBUSB_CALL libusb_bulk_transfer(libusb_device_handle *dev_handle,
 	unsigned char endpoint, unsigned char *data, int length,
 	int *actual_length, unsigned int timeout);
 
+int LIBUSB_CALL libusb_bulk_transfer_alt(libusb_device_handle *dev_handle,
+	unsigned char endpoint, unsigned char *data, int length,
+	int *actual_length, unsigned int timeout,
+	struct libusb_transfer *transfer);
+
+int LIBUSB_CALL libusb_bulk_transfer_create(struct libusb_transfer **transfer);
+
+int LIBUSB_CALL libusb_bulk_transfer_release(struct libusb_transfer *transfer);
+
 int LIBUSB_CALL libusb_interrupt_transfer(libusb_device_handle *dev_handle,
 	unsigned char endpoint, unsigned char *data, int length,
 	int *actual_length, unsigned int timeout);
@@ -1385,6 +1396,7 @@ int LIBUSB_CALL libusb_handle_events_timeout(libusb_context *ctx,
 int LIBUSB_CALL libusb_handle_events_timeout_completed(libusb_context *ctx,
 	struct timeval *tv, int *completed);
 int LIBUSB_CALL libusb_handle_events(libusb_context *ctx);
+int LIBUSB_CALL libusb_handle_events_check(libusb_context *ctx, int *completed);
 int LIBUSB_CALL libusb_handle_events_completed(libusb_context *ctx, int *completed);
 int LIBUSB_CALL libusb_handle_events_locked(libusb_context *ctx,
 	struct timeval *tv);
