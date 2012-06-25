@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * Foundation, Inc., 5cle1 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef __LIBUSB_H__
@@ -810,6 +810,7 @@ libusb_device_handle *libusb_open_device_with_vid_pid(libusb_context *ctx,
 int libusb_set_interface_alt_setting(libusb_device_handle *dev,
 	int interface_number, int alternate_setting);
 int libusb_clear_halt(libusb_device_handle *dev, unsigned char endpoint);
+int libusb_reset_endpoint(libusb_device_handle *dev, unsigned char endpoint);
 int libusb_reset_device(libusb_device_handle *dev);
 
 int libusb_kernel_driver_active(libusb_device_handle *dev, int interface);
@@ -1126,6 +1127,15 @@ int libusb_bulk_transfer(libusb_device_handle *dev_handle,
 	unsigned char endpoint, unsigned char *data, int length,
 	int *actual_length, unsigned int timeout);
 
+int libusb_bulk_transfer_alt(libusb_device_handle *dev_handle,
+	unsigned char endpoint, unsigned char *data, int length,
+	int *actual_length, unsigned int timeout,
+	struct libusb_transfer *transfer);
+
+int libusb_bulk_transfer_create(struct libusb_transfer **transfer);
+
+int libusb_bulk_transfer_release(struct libusb_transfer *transfer);
+
 int libusb_interrupt_transfer(libusb_device_handle *dev_handle,
 	unsigned char endpoint, unsigned char *data, int length,
 	int *actual_length, unsigned int timeout);
@@ -1187,7 +1197,9 @@ void libusb_unlock_event_waiters(libusb_context *ctx);
 int libusb_wait_for_event(libusb_context *ctx, struct timeval *tv);
 
 int libusb_handle_events_timeout(libusb_context *ctx, struct timeval *tv);
+int libusb_handle_events_timeout_check(libusb_context *ctx,	struct timeval *tv, int *completed);
 int libusb_handle_events(libusb_context *ctx);
+int libusb_handle_events_check(libusb_context *ctx, int *completed);
 int libusb_handle_events_locked(libusb_context *ctx, struct timeval *tv);
 int libusb_pollfds_handle_timeouts(libusb_context *ctx);
 int libusb_get_next_timeout(libusb_context *ctx, struct timeval *tv);

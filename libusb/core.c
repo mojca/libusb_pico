@@ -1314,6 +1314,29 @@ API_EXPORTED int libusb_clear_halt(libusb_device_handle *dev,
 }
 
 /** \ingroup dev
+ * Clear the halt/stall condition for an endpoint. Endpoints with halt status
+ * are unable to receive or transmit data until the halt condition is stalled.
+ *
+ * You should cancel all pending transfers before attempting to clear the halt
+ * condition.
+ *
+ * This is a blocking function.
+ *
+ * \param dev a device handle
+ * \param endpoint the endpoint to clear halt status
+ * \returns 0 on success
+ * \returns LIBUSB_ERROR_NOT_FOUND if the endpoint does not exist
+ * \returns LIBUSB_ERROR_NO_DEVICE if the device has been disconnected
+ * \returns another LIBUSB_ERROR code on other failure
+ */
+API_EXPORTED int libusb_reset_endpoint(libusb_device_handle *dev,
+	unsigned char endpoint)
+{
+	usbi_dbg("endpoint %x", endpoint);
+	return usbi_backend->reset_endpoint(dev, endpoint);
+}
+
+/** \ingroup dev
  * Perform a USB port reset to reinitialize a device. The system will attempt
  * to restore the previous configuration and alternate settings after the
  * reset has completed.

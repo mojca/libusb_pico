@@ -43,7 +43,7 @@
  * avoid this during enumeration.
  *
  * sysfs allows us to read the kernel's in-memory copies of device descriptors
- * and so forth, avoiding the need to open the device:
+ * and so forth, avoiding the need to open the device:op_clear_halt
  *  - The binary "descriptors" file was added in 2.6.23.
  *  - The "busnum" file was added in 2.6.22
  *  - The "devnum" file has been present since pre-2.6.18
@@ -1206,6 +1206,26 @@ static int op_clear_halt(struct libusb_device_handle *handle,
 	return 0;
 }
 
+static int op_reset_endpoint(struct libusb_device_handle *handle,
+	unsigned char endpoint)
+{
+	int fd = __device_handle_priv(handle)->fd;
+	unsigned int _endpoint = endpoint;
+	int r = ioctl(fd, IOCTL_USBFS_RESETEP, &_endpoint);
+	if (r) {
+		if (errno == ENOENT)
+			return LIBUSB_ERROR_NOT_FOUND;
+		else if (errno == ENODEV)
+			return LIBUSB_ERROR_NO_DEVICE;
+
+		usbi_err(HANDLE_CTX(handle),
+			"clear_halt failed error %d errno %d", r, errno);
+		return LIBUSB_ERROR_OTHER;
+	}
+
+	return 0;
+}
+
 static int op_reset_device(struct libusb_device_handle *handle)
 {
 	int fd = __device_handle_priv(handle)->fd;
@@ -1370,6 +1390,7 @@ static int submit_bulk_transfer(struct usbi_transfer *itransfer,
 	if (!urbs)
 		return LIBUSB_ERROR_NO_MEM;
 	memset(urbs, 0, alloc_size);
+	usbi_dbg("tpriv urb 0x%x",urbs);
 	tpriv->urbs = urbs;
 	tpriv->num_urbs = num_urbs;
 	tpriv->num_retired = 0;
@@ -2178,6 +2199,7 @@ const struct usbi_os_backend linux_usbfs_backend = {
 	.set_interface_altsetting = op_set_interface,
 	.clear_halt = op_clear_halt,
 	.reset_device = op_reset_device,
+  .reset_endpoint = op_reset_endpoint,
 
 	.kernel_driver_active = op_kernel_driver_active,
 	.detach_kernel_driver = op_detach_kernel_driver,

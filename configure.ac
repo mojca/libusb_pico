@@ -1,4 +1,4 @@
-AC_INIT([libusb], [1.0.8])
+AC_INIT([libusb_pico], [1.0.8])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([libusb/core.c])
 AC_CONFIG_MACRO_DIR([m4])
@@ -79,6 +79,7 @@ AC_ARG_ENABLE([log], [AS_HELP_STRING([--disable-log], [disable all logging])],
 	[log_enabled='yes'])
 if test "x$log_enabled" != "xno"; then
 	AC_DEFINE([ENABLE_LOGGING], 1, [Message logging])
+	AC_SUBST([CFLAGS],["-g3 -O0"])
 fi
 
 AC_ARG_ENABLE([debug-log], [AS_HELP_STRING([--enable-debug-log],
@@ -87,6 +88,7 @@ AC_ARG_ENABLE([debug-log], [AS_HELP_STRING([--enable-debug-log],
 	[debug_log_enabled='no'])
 if test "x$debug_log_enabled" != "xno"; then
 	AC_DEFINE([ENABLE_DEBUG_LOGGING], 1, [Debug message logging])
+	AC_SUBST([CFLAGS],["-g3 -O0"])
 fi
 
 # Examples build
@@ -126,6 +128,6 @@ AC_SUBST(VISIBILITY_CFLAGS)
 AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_LDFLAGS)
 
-AC_CONFIG_FILES([libusb-1.0.pc] [Makefile] [libusb/Makefile] [examples/Makefile] [doc/Makefile] [doc/doxygen.cfg])
+AC_CONFIG_FILES([libusb_pico-1.0.pc] [Makefile] [libusb/Makefile] [examples/Makefile] [doc/Makefile] [doc/doxygen.cfg])
 AC_OUTPUT
 
