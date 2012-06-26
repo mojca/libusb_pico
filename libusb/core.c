@@ -619,6 +619,7 @@ struct libusb_device *usbi_get_device_by_session_id(struct libusb_context *ctx,
 ssize_t API_EXPORTED libusb_get_device_list(libusb_context *ctx,
 	libusb_device ***list)
 {
+	fprintf(stderr, "\nMOJCADEBUG: libusb_get_device_list(ctx, &list)\n");
 	struct discovered_devs *discdevs = discovered_devs_alloc();
 	struct libusb_device **ret;
 	int r = 0;
@@ -665,6 +666,7 @@ out:
 void API_EXPORTED libusb_free_device_list(libusb_device **list,
 	int unref_devices)
 {
+	fprintf(stderr, "\nMOJCADEBUG:  libusb_free_device_list(list, unref_devices=%d)\n", unref_devices);
 	if (!list)
 		return;
 
@@ -941,6 +943,7 @@ void usbi_fd_notification(struct libusb_context *ctx)
 int API_EXPORTED libusb_open(libusb_device *dev,
 	libusb_device_handle **handle)
 {
+	fprintf(stderr, "\nMOJCADEBUG: libusb_open(device=(%d,%d,%d),handle=)\n", dev->bus_number,dev->device_address,dev->num_configurations);
 	struct libusb_context *ctx = DEVICE_CTX(dev);
 	struct libusb_device_handle *_handle;
 	size_t priv_size = usbi_backend->device_handle_priv_size;
@@ -1109,6 +1112,7 @@ static void do_close(struct libusb_context *ctx,
  */
 void API_EXPORTED libusb_close(libusb_device_handle *dev_handle)
 {
+	fprintf(stderr, "\nMOJCADEBUG: libusb_close(dev_handle)\n");
 	struct libusb_context *ctx;
 	unsigned char dummy = 1;
 	ssize_t r;
@@ -1171,6 +1175,7 @@ void API_EXPORTED libusb_close(libusb_device_handle *dev_handle)
 DEFAULT_VISIBILITY
 libusb_device * LIBUSB_CALL libusb_get_device(libusb_device_handle *dev_handle)
 {
+	fprintf(stderr, "\nMOJCADEBUG: libusb_get_device(handle=(...,dev=(%d,%d)))\n", dev_handle->dev->bus_number, dev_handle->dev->device_address);
 	return dev_handle->dev;
 }
 
@@ -1334,6 +1339,7 @@ out:
 int API_EXPORTED libusb_release_interface(libusb_device_handle *dev,
 	int interface_number)
 {
+	fprintf(stderr, "\nMOJCADEBUG: libusb_release_interface(device_handle, interface_number=%d)\n", interface_number);
 	int r;
 
 	usbi_dbg("interface %d", interface_number);
@@ -1414,6 +1420,7 @@ int API_EXPORTED libusb_set_interface_alt_setting(libusb_device_handle *dev,
 int API_EXPORTED libusb_clear_halt(libusb_device_handle *dev,
 	unsigned char endpoint)
 {
+	fprintf(stderr, "\nMOJCADEBUG: libusb_clear_halt(handle=(...),endpoint=%u)\n", endpoint);
 	usbi_dbg("endpoint %x", endpoint);
 	return usbi_backend->clear_halt(dev, endpoint);
 }
@@ -1601,6 +1608,7 @@ void API_EXPORTED libusb_set_debug(libusb_context *ctx, int level)
  */
 int API_EXPORTED libusb_init(libusb_context **context)
 {
+	fprintf(stderr, "\nMOJCADEBUG: libusb_init(ctx)\n");
 	char *dbg = getenv("LIBUSB_DEBUG");
 	struct libusb_context *ctx;
 	int r = 0;

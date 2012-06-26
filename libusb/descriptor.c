@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "libusbi.h"
 
@@ -435,6 +436,7 @@ err:
 int API_EXPORTED libusb_get_device_descriptor(libusb_device *dev,
 	struct libusb_device_descriptor *desc)
 {
+	fprintf(stderr, "\nMOJCADEBUG: libusb_get_device_descriptor(dev=(%d,%d,%d), desc=())\n",dev->bus_number,dev->device_address,dev->num_configurations);
 	unsigned char raw_desc[DEVICE_DESC_LENGTH];
 	int host_endian = 0;
 	int r;
@@ -451,6 +453,7 @@ int API_EXPORTED libusb_get_device_descriptor(libusb_device *dev,
 		desc->idProduct = libusb_le16_to_cpu(desc->idProduct);
 		desc->bcdDevice = libusb_le16_to_cpu(desc->bcdDevice);
 	}
+	fprintf(stderr, "MOJCADEBUG. desc=(bLength=%d, idVendor=%04x, idProduct=%04x, bcdDevice=%04x, iManufacturer=%02x, iProduct=%02x, iSerialNumber=%02x)\n", desc->bLength, desc->idVendor, desc->idProduct, desc->bcdDevice, desc->iManufacturer, desc->iProduct, desc->iSerialNumber);
 	return 0;
 }
 
