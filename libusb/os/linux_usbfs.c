@@ -1382,7 +1382,7 @@ static int op_clear_halt(struct libusb_device_handle *handle,
 static int op_reset_endpoint(struct libusb_device_handle *handle,
 	unsigned char endpoint)
 {
-	int fd = __device_handle_priv(handle)->fd;
+	int fd = _device_handle_priv(handle)->fd;
 	unsigned int _endpoint = endpoint;
 	int r = ioctl(fd, IOCTL_USBFS_RESETEP, &_endpoint);
 	if (r) {
