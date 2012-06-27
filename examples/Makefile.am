@@ -1,5 +1,5 @@
 INCLUDES = -I$(top_srcdir)/libusb
-LDADD = ../libusb/libusb-1.0.la
+LDADD = ../libusb/libusb_pico-1.0.la
 noinst_PROGRAMS = listdevs
 
 listdevs_SOURCES = listdevs.c
