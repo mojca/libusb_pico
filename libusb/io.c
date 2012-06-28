@@ -23,6 +23,7 @@
 #include <signal.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
@@ -1261,6 +1262,7 @@ struct libusb_transfer * LIBUSB_CALL libusb_alloc_transfer(
  */
 void API_EXPORTED libusb_free_transfer(struct libusb_transfer *transfer)
 {
+	fprintf(stderr, "\nPICODEBUG: libusb_free_transfer(*transfer)\n");
 	struct usbi_transfer *itransfer;
 	if (!transfer)
 		return;
@@ -1271,6 +1273,30 @@ void API_EXPORTED libusb_free_transfer(struct libusb_transfer *transfer)
 	itransfer = LIBUSB_TRANSFER_TO_USBI_TRANSFER(transfer);
 	usbi_mutex_destroy(&itransfer->lock);
 	free(itransfer);
+}
+
+void print_libusb_transfer(struct libusb_transfer *transfer)
+{
+	fprintf(stderr, "libusb_transfer:\n");
+	fprintf(stderr, "\tdev_handle=...\n");
+	fprintf(stderr, "\tflags=%x\n", transfer->flags);
+	fprintf(stderr, "\tendpoint=%x\n", transfer->endpoint);
+	fprintf(stderr, "\ttype=%x\n", transfer->type);
+	fprintf(stderr, "\ttimeout=%d ms\n", transfer->timeout);
+	fprintf(stderr, "\tstatus=");
+	switch(transfer->status) {
+		case(LIBUSB_TRANSFER_COMPLETED): fprintf(stderr, "LIBUSB_TRANSFER_COMPLETED\n"); break;
+		case(LIBUSB_TRANSFER_ERROR    ): fprintf(stderr, "LIBUSB_TRANSFER_ERROR    \n"); break;
+		case(LIBUSB_TRANSFER_TIMED_OUT): fprintf(stderr, "LIBUSB_TRANSFER_TIMED_OUT\n"); break;
+		case(LIBUSB_TRANSFER_CANCELLED): fprintf(stderr, "LIBUSB_TRANSFER_CANCELLED\n"); break;
+		case(LIBUSB_TRANSFER_STALL    ): fprintf(stderr, "LIBUSB_TRANSFER_STALL    \n"); break;
+		case(LIBUSB_TRANSFER_NO_DEVICE): fprintf(stderr, "LIBUSB_TRANSFER_NO_DEVICE\n"); break;
+		case(LIBUSB_TRANSFER_OVERFLOW ): fprintf(stderr, "LIBUSB_TRANSFER_OVERFLOW \n"); break;
+	}
+	fprintf(stderr, "\tlength=%d\n", transfer->length);
+	fprintf(stderr, "\tactual_length=%d\n", transfer->actual_length);
+	fprintf(stderr, "\tcallback=...\n");
+	fprintf(stderr, "\t...");
 }
 
 /** \ingroup asyncio
@@ -1287,6 +1313,9 @@ void API_EXPORTED libusb_free_transfer(struct libusb_transfer *transfer)
  */
 int API_EXPORTED libusb_submit_transfer(struct libusb_transfer *transfer)
 {
+	fprintf(stderr, "\nPICODEBUG: libusb_submit_transfer(*transfer)\n");
+	print_libusb_transfer(transfer);
+
 	struct libusb_context *ctx = TRANSFER_CTX(transfer);
 	struct usbi_transfer *itransfer =
 		LIBUSB_TRANSFER_TO_USBI_TRANSFER(transfer);
